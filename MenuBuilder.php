@@ -348,6 +348,8 @@ class MenuBuilder implements Countable
             $properties = compact('title', 'attributes');
         }
 
+        $properties['dropdown'] = true;
+
         $item = MenuItem::make($properties);
 
         call_user_func($callback, $item);
