@@ -311,7 +311,7 @@ class MenuItem implements ArrayableContract
      */
     public function getUrl()
     {
-        return !empty($this->route) ? route($this->route[0], $this->route[1]) : url($this->url);
+        return !empty($this->route) ? route($this->route[0], $this->route[1]) : ($this->url ? url($this->url) : '');
     }
 
     /**
