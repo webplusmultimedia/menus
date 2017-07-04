@@ -594,7 +594,7 @@ class MenuBuilder implements Countable
      */
     public function disableOrdering()
     {
-        $this->ordering = true;
+        $this->ordering = false;
 
         return $this;
     }
