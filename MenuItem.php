@@ -6,6 +6,8 @@ use Closure;
 use Illuminate\Contracts\Support\Arrayable as ArrayableContract;
 use Collective\Html\HtmlFacade as HTML;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class MenuItem implements ArrayableContract
 {
@@ -21,14 +23,14 @@ class MenuItem implements ArrayableContract
      *
      * @var array
      */
-    protected $childs = array();
+    protected $childs = [];
 
     /**
      * The fillable attribute.
      *
      * @var array
      */
-    protected $fillable = array(
+    protected $fillable = [
         'url',
         'route',
         'title',
@@ -38,12 +40,12 @@ class MenuItem implements ArrayableContract
         'attributes',
         'active',
         'order',
-        'hideWhen'
-    );
+        'hideWhen',
+    ];
 
     /**
      * The hideWhen callback.
-     * 
+     *
      * @var Closure
      */
     protected $hideWhen;
@@ -51,9 +53,9 @@ class MenuItem implements ArrayableContract
     /**
      * Constructor.
      *
-     * @param array $properties
+     * @param  array  $properties
      */
-    public function __construct($properties = array())
+    public function __construct($properties = [])
     {
         $this->properties = $properties;
         $this->fill($properties);
@@ -62,17 +64,17 @@ class MenuItem implements ArrayableContract
     /**
      * Set the icon property when the icon is defined in the link attributes.
      *
-     * @param array $properties
-     *
+     * @param  array  $properties
      * @return array
      */
     protected static function setIconAttribute(array $properties)
     {
-        $icon = array_get($properties, 'attributes.icon');
+        $icon = Arr::get($properties, 'attributes.icon');
+
         if (!is_null($icon)) {
             $properties['icon'] = $icon;
 
-            array_forget($properties, 'attributes.icon');
+            Arr::forget($properties, 'attributes.icon');
 
             return $properties;
         }
@@ -83,20 +85,18 @@ class MenuItem implements ArrayableContract
     /**
      * Get random name.
      *
-     * @param array $attributes
-     *
+     * @param  array  $attributes
      * @return string
      */
     protected static function getRandomName(array $attributes)
     {
-        return substr(md5(array_get($attributes, 'title', str_random(6))), 0, 5);
+        return substr(md5(Arr::get($attributes, 'title', Str::random(6))), 0, 5);
     }
 
     /**
      * Create new static instance.
      *
-     * @param array $properties
-     *
+     * @param  array  $properties
      * @return static
      */
     public static function make(array $properties)
@@ -109,7 +109,7 @@ class MenuItem implements ArrayableContract
     /**
      * Fill the attributes.
      *
-     * @param array $attributes
+     * @param  array  $attributes
      */
     public function fill($attributes)
     {
@@ -124,7 +124,6 @@ class MenuItem implements ArrayableContract
      * Create new menu child item using array.
      *
      * @param $attributes
-     *
      * @return $this
      */
     public function child($attributes)
@@ -138,20 +137,19 @@ class MenuItem implements ArrayableContract
      * Register new child menu with dropdown.
      *
      * @param $title
-     * @param callable $callback
-     *
+     * @param  callable  $callback
      * @return $this
      */
-    public function dropdown($title, \Closure $callback, $order = 0, array $attributes = array())
+    public function dropdown($title, \Closure $callback, $order = 0, array $attributes = [])
     {
         $properties = compact('title', 'order', 'attributes');
 
         if (func_num_args() == 3) {
             $arguments = func_get_args();
-            
-            $title = array_get($arguments, 0);
-            $attributes = array_get($arguments, 2);
-            
+
+            $title = Arr::get($arguments, 0);
+            $attributes = Arr::get($arguments, 2);
+
             $properties = compact('title', 'attributes');
         }
 
@@ -169,24 +167,23 @@ class MenuItem implements ArrayableContract
      *
      * @param $route
      * @param $title
-     * @param array $parameters
-     * @param array $attributes
-     *
+     * @param  array  $parameters
+     * @param  array  $attributes
      * @return array
      */
-    public function route($route, $title, $parameters = array(), $order = 0, $attributes = array())
+    public function route($route, $title, $parameters = [], $order = 0, $attributes = [])
     {
         if (func_num_args() == 4) {
             $arguments = func_get_args();
 
             return $this->add([
-                'route' => [array_get($arguments, 0), array_get($arguments, 2)],
-                'title' => array_get($arguments, 1),
-                'attributes' => array_get($arguments, 3)
+                'route' => [Arr::get($arguments, 0), Arr::get($arguments, 2)],
+                'title' => Arr::get($arguments, 1),
+                'attributes' => Arr::get($arguments, 3),
             ]);
         }
 
-        $route = array($route, $parameters);
+        $route = [$route, $parameters];
 
         return $this->add(compact('route', 'title', 'order', 'attributes'));
     }
@@ -196,19 +193,18 @@ class MenuItem implements ArrayableContract
      *
      * @param $url
      * @param $title
-     * @param array $attributes
-     *
+     * @param  array  $attributes
      * @return array
      */
-    public function url($url, $title, $order = 0, $attributes = array())
+    public function url($url, $title, $order = 0, $attributes = [])
     {
         if (func_num_args() == 3) {
             $arguments = func_get_args();
 
             return $this->add([
-                'url' => array_get($arguments, 0),
-                'title' => array_get($arguments, 1),
-                'attributes' => array_get($arguments, 2)
+                'url' => Arr::get($arguments, 0),
+                'title' => Arr::get($arguments, 1),
+                'attributes' => Arr::get($arguments, 2),
             ]);
         }
 
@@ -218,8 +214,7 @@ class MenuItem implements ArrayableContract
     /**
      * Add new child item.
      *
-     * @param array $properties
-     *
+     * @param  array  $properties
      * @return $this
      */
     public function add(array $properties)
@@ -234,13 +229,12 @@ class MenuItem implements ArrayableContract
     /**
      * Add new divider.
      *
-     * @param int $order
-     *
+     * @param  int  $order
      * @return self
      */
     public function addDivider($order = null)
     {
-        $item = static::make(array('name' => 'divider', 'order' => $order));
+        $item = static::make(['name' => 'divider', 'order' => $order]);
 
         $this->childs[] = $item;
 
@@ -261,15 +255,14 @@ class MenuItem implements ArrayableContract
      * Add dropdown header.
      *
      * @param $title
-     *
      * @return $this
      */
     public function addHeader($title)
     {
-        $item = static::make(array(
+        $item = static::make([
             'name' => 'header',
             'title' => $title,
-        ));
+        ]);
 
         $this->childs[] = $item;
 
@@ -280,7 +273,6 @@ class MenuItem implements ArrayableContract
      * Same with "addHeader" method.
      *
      * @param $title
-     *
      * @return $this
      */
     public function header($title)
@@ -327,8 +319,7 @@ class MenuItem implements ArrayableContract
     /**
      * Get icon.
      *
-     * @param null|string $default
-     *
+     * @param  null|string  $default
      * @return string
      */
     public function getIcon($default = null)
@@ -355,7 +346,7 @@ class MenuItem implements ArrayableContract
     {
         $attributes = $this->attributes ? $this->attributes : [];
 
-        array_forget($attributes, ['active', 'icon']);
+        Arr::forget($attributes, ['active', 'icon']);
 
         return HTML::attributes($attributes);
     }
@@ -384,7 +375,6 @@ class MenuItem implements ArrayableContract
      * Check is the current item divider.
      *
      * @param $name
-     *
      * @return bool
      */
     public function is($name)
@@ -479,7 +469,7 @@ class MenuItem implements ArrayableContract
      */
     public function getActiveAttribute()
     {
-        return array_get($this->attributes, 'active');
+        return Arr::get($this->attributes, 'active');
     }
 
     /**
@@ -489,7 +479,7 @@ class MenuItem implements ArrayableContract
      */
     public function getInactiveAttribute()
     {
-        return array_get($this->attributes, 'inactive');
+        return Arr::get($this->attributes, 'inactive');
     }
 
     /**
@@ -553,7 +543,7 @@ class MenuItem implements ArrayableContract
     /**
      * Set order value.
      *
-     * @param  int $order
+     * @param  int  $order
      * @return self
      */
     public function order($order)
@@ -566,7 +556,7 @@ class MenuItem implements ArrayableContract
 
     /**
      * Set hide condition for current menu item.
-     * 
+     *
      * @param  Closure
      * @return boolean
      */
@@ -579,7 +569,7 @@ class MenuItem implements ArrayableContract
 
     /**
      * Determine whether the menu item is hidden.
-     * 
+     *
      * @return boolean
      */
     public function hidden()
@@ -604,8 +594,7 @@ class MenuItem implements ArrayableContract
     /**
      * Get property.
      *
-     * @param string $key
-     *
+     * @param  string  $key
      * @return string|null
      */
     public function __get($key)
