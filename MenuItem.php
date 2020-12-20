@@ -255,13 +255,15 @@ class MenuItem implements ArrayableContract
      * Add dropdown header.
      *
      * @param $title
+     * @param null $order
      * @return $this
      */
-    public function addHeader($title)
+    public function addHeader($title, $order = null)
     {
         $item = static::make([
             'name' => 'header',
             'title' => $title,
+            'order' => $order,
         ]);
 
         $this->childs[] = $item;
@@ -273,11 +275,12 @@ class MenuItem implements ArrayableContract
      * Same with "addHeader" method.
      *
      * @param $title
+     * @param $order
      * @return $this
      */
-    public function header($title)
+    public function header($title, $order = null)
     {
-        return $this->addHeader($title);
+        return $this->addHeader($title, $order);
     }
 
     /**
