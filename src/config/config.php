@@ -11,6 +11,6 @@ return [
         'navmenu'      => 'Pingpong\Menus\Presenters\Bootstrap\NavMenuPresenter',
     ],
 
-    'ordering' => false,
+    'ordering' => true,
 
 ];
